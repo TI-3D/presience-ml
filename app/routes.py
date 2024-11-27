@@ -3,10 +3,25 @@ from app.controller import FaceRecognitionController
 from flask import request
 from flask import jsonify
 import logging
+import os
+from dotenv import load_dotenv
 
 @app.route('/')
 def index():
     return 'Hello World!'
+
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
+
+@app.before_request
+def validate_api_key():
+    if request.endpoint == 'index':
+        return  # Skip middleware for this route
+    
+    key = request.headers.get("X-API-Key")
+    if key != API_KEY:
+        print("Invalid API Key")
+        return jsonify({"error": "Unauthorized"}), 401
 
 @app.route('/api/face-recognition/add', methods=['POST'])
 def add():
